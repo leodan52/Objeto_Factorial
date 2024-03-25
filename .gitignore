@@ -1,0 +1,9 @@
+# Specific Files
+pruebas.ipynb
+notas.ipynb
+
+# hidden python files and folders
+.py*
+
+# pycache
+__pycache__
