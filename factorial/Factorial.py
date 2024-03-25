@@ -2,62 +2,24 @@
 from math import factorial
 import pandas as pd
 
-def main():
-
-	f1 = Factorial(10)
-	f2 = Factorial(8)
-	f3 = Factorial(5)
-
-	print(f'{f1} = {f1.integer}')
-	print(f'{f2} = {f2.integer}')
-	print(f'{f3} = {f3.integer}')
-
-	print('\nSumas\n')
-
-	print('Con un entero o flotante:')
-	print(f'\t{f1} + 10 = {f1 + 10}')
-	print(f'\t14 + {f2} = {14 + f2}')
-
-	print(f'\t{f2} + 0.25 = {f1 + 0.25}')
-	print(f'\t7.31 + {f3} = {7.31 + f3}')
-	print('Entre factoriales:')
-	print(f'\t{f1} + {f2} = {f1 + f2}')
-	print(f'\t{f2} + {f3} = {f3 + f2}')
-
-	print('\nRestas\n')
-
-	print('Con un entero o flotante:')
-	print(f'\t{f1} - 10 = {f1 - 10}')
-	print(f'\t14 - {f2} = {14 - f2}')
-
-	print(f'\t{f2} - 0.25 = {f1 - 0.25}')
-	print(f'\t-7.31 + {f3} = {- 7.31 + f3}')
-	print('Entre factoriales:')
-	print(f'\t-{f1} + {f2} = {- f1 + f2}')
-	print(f'\t{f2} - {f3} = {f3 - f2}')
-
-
-
 class BaseFactorial:
 
-	def __init__(self, n_inicial, n_final):
+	def __init__(self, n_final, n_inicial):
 
 		self.__n = n_final
 		self.__inicial = n_inicial
-
-	def __int__(self):
-		return self.integer
+		self.__m = n_inicial - 1
 
 	def __neg__(self):
-		return -self.integer
+		return -self.value
 
 	def __add__(self, other):
 		if not isinstance(other, (int, float, BaseFactorial)):
 			raise TypeError(f'Tipo \'Factorial\' no se puede sumar con {type(other)}\'')
 		elif isinstance(other, BaseFactorial):
-			return self.integer + other.integer
+			return self.value + other.value
 
-		return self.integer + other
+		return self.value + other
 
 	def __radd__(self, other):
 		return self + other
@@ -66,20 +28,14 @@ class BaseFactorial:
 		if not isinstance(other, (int, float, BaseFactorial)):
 			raise TypeError(f'Tipo \'Factorial\' no se puede sumar con {type(other)}\'')
 
-		return self.integer + (-other)
+		return self.value + (-other)
 
 	def __rsub__(self, other):
 		return -(self - other)
 
-	def __rtruediv__(self, other):
-		if not isinstance(other, (int, float, BaseFactorial)):
-			raise TypeError(f'Tipo \'Factorial\' no se puede dividir con {type(other)}\'')
-
-		return other / self.integer
-
 	def __eq__(self, other):
 		if isinstance(other, (int, float)):
-			return self.integer == other
+			return self.value == other
 		elif isinstance(other, BaseFactorial):
 			return (self.n == other.n) and (self.inicial == other.inicial)
 		else:
@@ -87,13 +43,13 @@ class BaseFactorial:
 
 	def __lt__(self, other):
 		if isinstance(other, (int, float)):
-			return self.integer < other
+			return self.value < other
 		elif isinstance(other, BaseFactorial):
 			if self.inicial == other.inicial:
 				return self.n < other.n
 			elif self.n == other.n:
 				return other.inicial < self.inicial
-			return self.integer < other.integer
+			return self.value < other.value
 		else:
 			raise TypeError(f'No se puede comparar Factorial con {type(other)}')
 
@@ -102,13 +58,13 @@ class BaseFactorial:
 
 	def __gt__(self, other):
 		if isinstance(other, (int, float)):
-			return self.integer > other
+			return self.value > other
 		elif isinstance(other, BaseFactorial):
 			if self.inicial == other.inicial:
 				return self.n > other.n
 			elif self.n == other.n:
 				return other.inicial > self.inicial
-			return self.integer > other.integer
+			return self.value > other.value
 		else:
 			raise TypeError(f'No se puede comparar Factorial con {type(other)}')
 
@@ -120,68 +76,68 @@ class BaseFactorial:
 		return self.__n
 
 	@property
-	def integer(self):
-		return self.__calcular()
+	def m(self):
+		return self.__m
+
+	@property
+	def value(self):
+		return self.__calcule()
 
 	@property
 	def inicial(self):
 		return self.__inicial
 
-	def __calcular(self):
+	def __calcule(self):
 		salida = 1
-		if self.__n > 0:
-			for i in range(self.__inicial, self.__n + 1):
-				salida *= i
-		elif self.__n == 0:
-			pass
+		if self.__n <= 0 and self.m == 0:
+			return salida
 
-		return salida
+		if self.__inicial == self.__n:
+			return self.__n
 
-class Factorial(BaseFactorial):
-	''' Representación de la operación factorial: n!, tal que
-	n! = n * (n - 1) * (n - 2) ... 3 * 2 * 1 '''
+		final = max(self.__m, self.__n)
+		inicial = min(self.__m, self.__n)
 
-	def __init__(self, n):
-		super().__init__(1, n)
+		for i in range(inicial + 1, final + 1):
+			salida *= i
 
-	def __str__(self):
-		return f'{self.n}!'
+		if self.__m < self.__n:
+			return salida
+		else:
+			return 1 / salida
 
-	def __repr__(self):
-		return f'< Objeto Factorial, n!, n = {self.n} >'
+	def factors(self):
 
-	def __truediv__(self, other):
+		if self.__n <= 0 and self.m == 0:
+			return {1}, set()
 
-		if isinstance(other, BaseFactorial):
-			if self.n > other.n and isinstance(other, Factorial):
-				return DivFactorial(other.n + 1, self.n)
-			else:
-				return self.integer / other.integer
+		if self.__inicial == self.__n:
+			return {self.__n}, set()
 
-		if not isinstance(other, (int, float)):
-			raise TypeError(f'Tipo \'Factorial\' no se puede dividir con {type(other)}\'')
-		elif other == self.n:
-			return Factorial(self.n - 1)
-		elif other == self.inicial and other > 1:
-			return DivFactorial(self.inicial + 1, self.n)
+		initial = min(self.__m, self.__n)
+		final = max(self.__m, self.__n)
 
-		return self.integer / other
+		# print()
+		# print(f, initial, final)
+		# for i in range(initial + 1, final + 1):
+		# 	print(f'\t{i}')
 
-	def __mul__(self, other):
-		if not isinstance(other, (int, float, BaseFactorial)):
-			raise TypeError(f'Tipo \'Factorial\' no se puede multiplicar con {type(other)}\'')
-		elif isinstance(other, BaseFactorial):
-			return self.integer / other.integer
+		factors = {i for i in range(initial + 1, final + 1)} | {1}
+		# print('\t', factors)
 
-		if other == self.n + 1:
-			return Factorial(self.n + 1)
+		if self.__inicial <= self.__n:
+			num, den = factors, {1}
+		else:
+			num, den = {1}, factors
 
-		return self.integer * other
+		# print('\t', num, den)
 
-	def __rmul__(self, other):
-		return self * other
+		return num, den
 
 class DivFactorial(BaseFactorial):
+
+	def __init__(self, n, m):
+		super().__init__(n, m + 1)
 
 	def __str__(self):
 		return f'{self.n}!/{self.m}!'
@@ -189,38 +145,153 @@ class DivFactorial(BaseFactorial):
 	def __repr__(self):
 		return f'< Objeto DivFactorial, n!/m!, n = {self.n} y m = {self.m} >'
 
-	def __truediv__(self, other):
-		if not isinstance(other, (int, float, BaseFactorial)):
-			raise TypeError(f'Tipo \'Factorial\' no se puede multiplicar con {type(other)}\'')
-		elif isinstance(other, BaseFactorial):
-			return self.integer / other.integer
-
-		if other == self.n:
-			return DivFactorial(self.inicial, self.n - 1)
-		elif other == self.inicial and other > 1:
-			return DivFactorial(self.inicial + 1, self.n)
-
-		return self.integer / other
+	def __rtruediv__(self, other):
+		return self.invert() * other
 
 	def __mul__(self, other):
 		if not isinstance(other, (int, float, BaseFactorial)):
 			raise TypeError(f'Tipo \'Factorial\' no se puede multiplicar con {type(other)}\'')
-		elif isinstance(other, BaseFactorial):
-			return self.integer * other.integer
+		elif isinstance(other, float):
+			return NumericFactorial(self.value * other)
+		elif isinstance(other, int):
+			other_factorial = DivFactorial(other - 1, other)
+		else:
+			other_factorial = other
 
-		if other == self.n + 1:
-			return DivFactorial(self.m, other)
-		elif other == self.m - 1:
-			return DivFactorial(other, self.n)
-
-		return self.integer * other
+		if self.n == other_factorial.m:
+			if self.m == 0:
+				return Factorial(other_factorial.n)
+			else:
+				return DivFactorial(self.m, other_factorial.n)
+		elif other_factorial.n == self.m:
+			if other_factorial.m == 0:
+				return Factorial(self.n)
+			else:
+				return DivFactorial(other_factorial.m, self.n)
+		else:
+			return NumericFactorial(DivFactorial.__mul(self, other_factorial))
 
 	def __rmul__(self, other):
 		return self * other
 
-	@property
-	def m(self):
-		return self.inicial - 1
+	def invert(self):
+		return DivFactorial(self.m, self.n)
+
+	def __truediv__(self, other):
+		if not isinstance(other, (int, float, BaseFactorial)):
+			raise TypeError(f'Tipo \'Factorial\' no se puede multiplicar con {type(other)}\'')
+		elif isinstance(other, int):
+			return self * DivFactorial(other-1, other).invert()
+		elif isinstance(other, BaseFactorial):
+			return self * other.invert()
+
+		if other == self.n:
+			return DivFactorial(self.m, self.n - 1)
+		elif other == self.inicial and other > 1:
+			return DivFactorial(self.m + 1, self.n)
+		elif isinstance(other, float):
+			return NumericFactorial(self.value / other)
+
+		return NumericFactorial(DivFactorial.__mul(self, other.invert()))
+
+	def __rtruediv__(self, other):
+		return self.invert() * other
+
+	@staticmethod
+	def __mul(f1, f2):
+		f1_num, f1_den = f1.factors()
+		f2_num, f2_den = f2.factors()
+
+		num_factors = list(f1_num) + list(f2_num)
+		den_factors = list(f1_den) + list(f2_den)
+		num_factors.sort(), den_factors.sort()
+
+		list_short = sorted([num_factors.copy(),
+							den_factors.copy()], key=len)[0]
+
+		for f in list_short:
+			if f in num_factors and f in den_factors and f != 1:
+				num_factors.remove(f)
+				den_factors.remove(f)
+
+		num = DivFactorial.__prod(num_factors)
+		den = DivFactorial.__prod(den_factors)
+
+		if den == 1:
+			return num
+		else:
+			return num / den
+
+
+	@staticmethod
+	def __prod(iter_):
+		salida = 1
+		for i in iter_:
+			salida *= i
+		return salida
+
+
+
+class Factorial(DivFactorial):
+	''' Representación de la operación factorial: n!, tal que
+	n! = n * (n - 1) * (n - 2) ... 3 * 2 * 1 '''
+
+	def __init__(self, n):
+		super().__init__(n, 0)
+
+	def __str__(self):
+		return f'{self.n}!'
+
+	def __repr__(self):
+		return f'< Objeto Factorial, n!, n = {self.n} >'
+
+	@staticmethod
+	def prod(a, b):
+		''' Ejecuta la multiplicación de factoriales de la forma a! * b! '''
+
+		a_factorial = Factorial(a)
+		b_factorial = Factorial(b)
+
+		return (a_factorial*b_factorial).value
+
+
+	@staticmethod
+	def div(a, b):
+		''' Ejecuta la división de factoriales de la forma a!/b! '''
+
+		a_factorial = Factorial(a)
+		b_factorial = Factorial(b)
+
+		return (a_factorial/b_factorial).value
+
+
+class NumericFactorial(BaseFactorial):
+	def __init__(self, result):
+		super().__init__(result, result)
+
+	def __repr__(self):
+		if isinstance(self.value, int):
+			repr = f'{self.value:,}'
+		elif self.value >= 0.01:
+			repr = f'{self.value:,.2f}'
+		else:
+			repr = f'{self.value:.2e}'
+
+		return f'< Objeto NumericFactorial, value = {repr} >'
+
+	def invert(self):
+		return NumericFactorial(1 / self.value)
+
+	def __truediv__(self, other):
+		if not isinstance(other, (int, float, BaseFactorial)):
+			raise TypeError(f'Tipo \'Factorial\' no se puede multiplicar con {type(other)}\'')
+		elif isinstance(other, int):
+			return self * DivFactorial(other-1, other).invert()
+		elif isinstance(other, BaseFactorial):
+			return self * other.invert()
+
+	def __rtruediv__(self, other):
+		return (self / other).invert()
 
 if __name__ == '__main__':
 	main()
